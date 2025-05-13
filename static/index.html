@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="sv">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Boklista</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background: linear-gradient(to right, #f8f9fa, #ffffff);
+      }
+      .book-card {
+        max-width: 800px;
+        margin: 40px auto;
+      }
+      .list-group-item {
+        background-color: #fff;
+        border-radius: 8px;
+        margin-bottom: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container book-card shadow p-4 bg-white rounded">
+      <h1 class="mb-5 text-center text-success">
+        <i class="bi bi-book text-info"></i> Olenas Bibliotek
+      </h1>
+
+      <div id="alert" class="alert d-none" role="alert"></div>
+
+      <form id="bookForm" class="mb-4">
+        <input type="hidden" id="bookId" />
+        <div class="row g-2">
+          <div class="col-md-4">
+            <input
+              type="text"
+              id="title"
+              class="form-control"
+              placeholder="Titel"
+              required
+            />
+          </div>
+          <div class="col-md-4">
+            <input
+              type="text"
+              id="author"
+              class="form-control"
+              placeholder="Författare"
+              required
+            />
+          </div>
+          <div class="col-md-2">
+            <input
+              type="number"
+              id="year"
+              class="form-control"
+              placeholder="År"
+              required
+              min="1000"
+              max="2025"
+            />
+          </div>
+          <div class="col-md-2 d-grid">
+            <button type="submit" class="btn btn-success">
+              <i class="bi bi-save"></i> Spara
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <ul id="bookList" class="list-group"></ul>
+
+      <div class="text-end mt-2">
+        <button
+          class="btn btn-outline-danger btn-sm"
+          onclick="deleteAllBooks()"
+        >
+          <i class="bi bi-trash3-fill"></i> Radera alla böcker
+        </button>
+      </div>
+    </div>
+
+    <script>
+      function showAlert(msg, type = "success") {
+        const alertBox = document.getElementById("alert");
+        alertBox.className = `alert alert-${type}`;
+        alertBox.textContent = msg;
+        alertBox.classList.remove("d-none");
+        setTimeout(() => alertBox.classList.add("d-none"), 2000);
+      }
+
+      async function loadBooks() {
+        const res = await fetch("/books");
+        const books = await res.json();
+        const list = document.getElementById("bookList");
+        list.innerHTML = "";
+        books.forEach((b) => {
+          const li = document.createElement("li");
+          li.className =
+            "list-group-item d-flex justify-content-between align-items-center";
+          li.innerHTML = `
+          <div>
+            <strong>${b.title}</strong> av ${b.author} (${b.year})
+          </div>
+          <div>
+            <button class="btn btn-sm btn-outline-primary me-2" onclick='editBook(${JSON.stringify(
+              b
+            )})'>
+              <i class="bi bi-pencil-fill"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger" onclick='deleteBook(${
+              b.id
+            })'>
+              <i class="bi bi-trash-fill"></i>
+            </button>
+          </div>
+        `;
+          list.appendChild(li);
+        });
+      }
+
+      function editBook(book) {
+        document.getElementById("bookId").value = book.id;
+        document.getElementById("title").value = book.title;
+        document.getElementById("author").value = book.author;
+        document.getElementById("year").value = book.year;
+      }
+
+      async function deleteBook(id) {
+        if (confirm("Vill du verkligen ta bort boken?")) {
+          await fetch(`/books/${id}`, { method: "DELETE" });
+          showAlert("Boken togs bort", "warning");
+          loadBooks();
+        }
+      }
+
+      async function deleteAllBooks() {
+        if (confirm("Vill du verkligen radera alla böcker?")) {
+          await fetch("/books/delete_all", { method: "DELETE" });
+          showAlert("Alla böcker raderades", "danger");
+          loadBooks();
+        }
+      }
+
+      document
+        .getElementById("bookForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const id = document.getElementById("bookId").value;
+          const title = document.getElementById("title").value;
+          const author = document.getElementById("author").value;
+          const year = document.getElementById("year").value;
+          const payload = { title, author, year: parseInt(year) };
+
+          if (id) {
+            await fetch(`/books/${id}`, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            });
+            showAlert("Bok uppdaterad", "info");
+          } else {
+            await fetch("/books", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            });
+            showAlert("Bok tillagd");
+          }
+
+          document.getElementById("bookForm").reset();
+          document.getElementById("bookId").value = "";
+          loadBooks();
+        });
+
+      loadBooks();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,16 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.11
+  pre_build:
+    commands:
+      - pip install -r requirements.txt
+      - python test_app.py
+  build:
+    commands:
+      - docker build -t youruser/bookapi .
+  post_build:
+    commands:
+      - docker push youruser/bookapi
