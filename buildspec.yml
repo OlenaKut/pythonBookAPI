@@ -1,18 +1,11 @@
 version: 0.2
 
 phases:
-  pre_build:
-    commands:
-      - echo Installing dependencies...
-      - pip install -r requirements.txt
-      - python test_app.py
-
   build:
     commands:
-      - echo Building Docker image...
       - docker build -t olenakutasevych/bookapi .
-
-  post_build:
-    commands:
-      - echo Pushing Docker image...
+      - docker login
       - docker push olenakutasevych/bookapi
+
+
+
