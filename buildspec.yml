@@ -10,7 +10,7 @@ phases:
       - python test_app.py
   build:
     commands:
-      - docker build -t youruser/bookapi .
+      - docker build -t olenakutasevych/bookapi.
   post_build:
     commands:
-      - docker push youruser/bookapi
+      - docker push olenakutasevych/bookapi
