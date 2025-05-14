@@ -1,21 +1,33 @@
-FROM python:3.11-slim
+# Base image
+FROM python:3.10-slim
 
+# Set working directory
 WORKDIR /app
-COPY . .
+
+# Copy requirements first for caching
+COPY requirements.txt .
+
+# Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copy app code
+COPY . .
+
+# Expose port
 EXPOSE 5000
 
-CMD ["python", "-m", "flask", "run", "--host=0.0.0.0"]
+# Start app
+CMD ["python", "app.py"]
 
 
 
+# docker build -t olenakutasevych/bookapi .
+# docker push olenakutasevych/bookapi
+#
 
-# - docker build -t git.systementor.se/olena/pythonapi .
-# - docker push git.systementor.se/olena/pythonapi
 
 # Rebuild image locally
-# docker buildx build --platform linux/amd64 -t git.systementor.se/olena/pythonapi:latest .
+# docker buildx build --platform linux/amd64 -t olenakutasevych/bookapi:latest .
 
 # Push with buildx (especially important on M1/M2 Macs)
-# docker buildx build --platform linux/amd64 -t git.systementor.se/olena/pythonapi:latest --push .
+# docker buildx build --platform linux/amd64 -t olenakutasevych/bookapi:latest --push .
