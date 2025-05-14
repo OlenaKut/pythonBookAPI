@@ -4,8 +4,7 @@ phases:
   build:
     commands:
       - docker build -t olenakutasevych/bookapi .
-      - docker login
+      - docker login -u olenakutasevych -p 18011984Aa.
       - docker push olenakutasevych/bookapi
-
 
 
