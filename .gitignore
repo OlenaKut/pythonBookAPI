@@ -1,0 +1,17 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# Virtuell miljö
+env/
+venv/
+
+# SQLite databas (om du använder tillfällig lokal databas)
+*.sqlite
+*.db
+
+# VSCode inställningar
+.vscode/
+
+# OS-filer
+.DS_Store
