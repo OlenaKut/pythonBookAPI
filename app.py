@@ -1,10 +1,13 @@
+from config.config import ProductionConfig  # lägg till importen högst upp
 from flask import Flask, request, jsonify
 from models import db, Book
 import os
 
-app = Flask(__name__, static_folder='static', static_url_path='')
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///books.db'
+app = Flask(__name__, static_folder='static', static_url_path='')
+app.config.from_object(ProductionConfig)
+
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///books.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
